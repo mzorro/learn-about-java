@@ -10,11 +10,11 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 
-public class TimerClient extends SelectReactor {
+public class TimeClient extends SelectReactor {
 
     private int port;
 
-    public TimerClient(int port) {
+    public TimeClient(int port) {
         this.port = port;
     }
 
@@ -98,6 +98,6 @@ public class TimerClient extends SelectReactor {
 
     public static void main(String[] args) {
         int port = 8013;
-        new Thread(new TimerClient(port), "TimerClient").start();
+        new Thread(new TimeClient(port), "TimeClient").start();
     }
 }
