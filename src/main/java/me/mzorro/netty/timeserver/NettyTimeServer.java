@@ -12,6 +12,8 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.LineBasedFrameDecoder;
 import io.netty.handler.codec.string.StringDecoder;
+import io.netty.handler.codec.string.StringEncoder;
+import io.netty.util.CharsetUtil;
 
 import java.util.Date;
 
@@ -39,8 +41,9 @@ public class NettyTimeServer implements Runnable {
                     .childHandler(new ChannelInitializer<SocketChannel>() {
                         @Override
                         protected void initChannel(SocketChannel ch) throws Exception {
-                            ch.pipeline().addLast(new LineBasedFrameDecoder(1024))
-                                    .addLast(new StringDecoder())
+                            ch.pipeline().addLast(new StringEncoder(CharsetUtil.UTF_8))
+                                    .addLast(new LineBasedFrameDecoder(1024))
+                                    .addLast(new StringDecoder(CharsetUtil.UTF_8))
                                     .addLast(new TimeServerHandler());
                         }
                     });
@@ -64,11 +67,11 @@ public class NettyTimeServer implements Runnable {
             // 读数据
             String order = (String) msg;
             System.out.println("Receive order: \"" + order + "\" from: " + ctx.channel().remoteAddress());
-            String response = "query time".equalsIgnoreCase(order) ? new Date().toString() : "BAD ORDER\n";
+            String response = "query time".equalsIgnoreCase(order) ? new Date().toString() : "BAD ORDER";
             System.out.println("Send response: \"" + response + "\" to: " + ctx.channel().remoteAddress());
             // 写响应
-            ByteBuf resBuf = Unpooled.copiedBuffer((response+'\n').getBytes());
-            ctx.write(resBuf);
+            //ByteBuf resBuf = Unpooled.copiedBuffer((response+'\n').getBytes());
+            ctx.write(response+"\n");
         }
 
         @Override

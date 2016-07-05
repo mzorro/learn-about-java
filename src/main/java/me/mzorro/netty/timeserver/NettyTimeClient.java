@@ -4,8 +4,6 @@
 package me.mzorro.netty.timeserver;
 
 import io.netty.bootstrap.Bootstrap;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
@@ -15,6 +13,8 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.LineBasedFrameDecoder;
 import io.netty.handler.codec.string.StringDecoder;
+import io.netty.handler.codec.string.StringEncoder;
+import io.netty.util.CharsetUtil;
 
 public class NettyTimeClient implements Runnable {
 
@@ -33,8 +33,9 @@ public class NettyTimeClient implements Runnable {
                     .handler(new ChannelInitializer<SocketChannel>() {
                         @Override
                         protected void initChannel(SocketChannel ch) throws Exception {
-                            ch.pipeline().addLast(new LineBasedFrameDecoder(1024))
-                                    .addLast(new StringDecoder())
+                            ch.pipeline().addLast(new StringEncoder(CharsetUtil.UTF_8))
+                                    .addLast(new LineBasedFrameDecoder(1024))
+                                    .addLast(new StringDecoder(CharsetUtil.UTF_8))
                                     .addLast(new TimeClientHandler());
                         }
                     });
@@ -57,8 +58,8 @@ public class NettyTimeClient implements Runnable {
         @Override
         public void channelActive(ChannelHandlerContext ctx) throws Exception {
             // 通道被激活，现在可以发送请求了
-            ByteBuf buf = Unpooled.copiedBuffer("query time\n".getBytes());
-            ctx.writeAndFlush(buf);
+            //ctx.writeAndFlush(Unpooled.copiedBuffer("query time\n".getBytes()));
+            ctx.writeAndFlush("query time\n");
         }
 
         @Override
